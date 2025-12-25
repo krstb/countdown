@@ -6,47 +6,28 @@
     <title>Countdown</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Styling für den datetime-local-Input, um ihn an die anderen Elemente anzupassen */
-        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            cursor: pointer;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator { cursor: pointer; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col items-center pt-8 p-4 text-slate-800">
     <div id="countdown-app" class="w-full max-w-sm bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
         <h1 class="text-2xl font-extrabold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-600">
-            Countdown von Robert
+            Countdown
         </h1>
 
         <div class="flex justify-center space-x-2 mb-4">
-            <button id="mode-target-date" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 bg-cyan-600 text-white shadow-md">
-                Zielzeit
-            </button>
-            <button id="mode-countdown" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                Countdown
-            </button>
+            <button id="mode-target-date" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300">Zielzeit</button>
+            <button id="mode-countdown" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300">Countdown</button>
         </div>
 
-        <div id="input-container" class="min-h-[170px]">
-            </div>
+        <div id="input-container" class="min-h-[170px]"></div>
 
         <div class="flex justify-center space-x-2 mb-4">
-            <button id="start-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm bg-cyan-600 text-white shadow-md hover:bg-cyan-500 hover:scale-110">
-                Start
-            </button>
-            <button id="reset-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm bg-gray-300 text-gray-500 cursor-not-allowed" disabled>
-                Reset
-            </button>
-            <button id="mute-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm bg-amber-500 text-white shadow-md hover:bg-amber-400 hover:scale-110">
-                Ton an
-            </button>
-            <button id="save-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm bg-blue-500 text-white shadow-md hover:bg-blue-400 hover:scale-110 hidden">
-                Speichern
-            </button>
+            <button id="start-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm">Start</button>
+            <button id="reset-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm">Reset</button>
+            <button id="mute-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm">Ton an</button>
+            <button id="save-button" class="px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm bg-blue-500 text-white shadow-md hover:bg-blue-400 hover:scale-110 hidden">Speichern</button>
         </div>
 
         <div class="text-center p-4 bg-gray-50 rounded-xl shadow-inner border border-gray-200">
@@ -60,7 +41,7 @@
             </div>
         </div>
 
-        <div id="save-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div id="save-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
                 <h3 id="save-modal-title" class="text-lg font-bold mb-4">Countdown speichern</h3>
                 <div id="modal-time-inputs" class="mb-4"></div>
@@ -73,22 +54,26 @@
         </div>
         
         <div class="mt-4 p-4 bg-white rounded-2xl shadow-lg border border-gray-200">
-            <h2 class="text-lg font-bold mb-2">Gespeicherte Countdown-Ereignisse</h2>
-            <div id="saved-events-list" class="space-y-2 mb-4">
-                <p class="text-sm text-gray-500">Keine gespeicherten Events.</p>
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-lg font-bold">gespeichert</h2>
+                <div class="flex space-x-1">
+                    <button id="export-csv-btn" title="Export CSV" class="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-300 text-slate-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </button>
+                    <button id="import-csv-btn" title="Import CSV" class="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-300 text-slate-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    </button>
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv">
+                </div>
             </div>
-
-            <div class="flex space-x-2 pt-2 border-t border-gray-100">
-                <button id="export-csv-btn" class="flex-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">CSV Export</button>
-                <label for="import-csv-file" class="flex-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors text-center cursor-pointer">CSV Import</label>
-                <input type="file" id="import-csv-file" class="hidden" accept=".csv">
+            <div id="saved-events-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <p class="text-sm text-gray-500">nichts gespeicherten</p>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // DOM-Elemente abrufen
             const modeTargetDateBtn = document.getElementById('mode-target-date');
             const modeCountdownBtn = document.getElementById('mode-countdown');
             const inputContainer = document.getElementById('input-container');
@@ -109,14 +94,13 @@
             const eventNameInput = document.getElementById('event-name-input');
             const confirmSaveBtn = document.getElementById('confirm-save-button');
             const cancelSaveBtn = document.getElementById('cancel-save-button');
+            const exportCsvBtn = document.getElementById('export-csv-btn');
+            const importCsvBtn = document.getElementById('import-csv-btn');
+            const csvFileInput = document.getElementById('csv-file-input');
 
-            // App-Zustand
             let mode = 'targetDate';
             let selectedDateTime = '';
-            let days = null;
-            let hours = null;
-            let minutes = null;
-            let seconds = null;
+            let days = null, hours = null, minutes = null, seconds = null;
             let targetDate = '';
             let isCountingDown = false;
             let isMuted = false;
@@ -125,94 +109,22 @@
             let savedEvents = [];
             let editingEventIndex = null;
 
-            // Hilfsfunktionen
             const padNumber = (num) => String(num).padStart(2, '0');
             const padMilliseconds = (num) => String(Math.floor(num / 10)).padStart(2, '0');
 
             const setNowAsDateTime = () => {
                 const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hour = String(now.getHours()).padStart(2, '0');
-                const minute = String(now.getMinutes()).padStart(2, '0');
-                return `${year}-${month}-${day}T${hour}:${minute}`;
+                return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             };
 
-            const getFormattedTargetDate = () => {
-                if (targetDate) {
-                    return new Date(targetDate).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
-                }
-                if (selectedDateTime && mode === 'targetDate') {
-                    const dateObj = new Date(selectedDateTime);
-                    return dateObj.toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' });
-                }
-                return ''; // Zeigt nichts an, wenn keine Zeit ausgewählt ist
-            };
-
-            const playTone = () => {
-                if (isMuted) return;
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                const allFrequencies = [440, 660, 880, 440, 660, 880, 440, 660, 880];
-                const duration = 0.2;
-                const delay = 0.1;
-
-                allFrequencies.forEach((freq, index) => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-                    gainNode.gain.value = 0.5;
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    const startTime = audioContext.currentTime + (index * (duration + delay));
-                    oscillator.start(startTime);
-                    oscillator.stop(startTime + duration);
-                });
-            };
-
-            const saveAppState = () => {
-                const stateToSave = { mode, selectedDateTime, days, hours, minutes, seconds, isCountingDown, isMuted, targetDate };
-                try {
-                    localStorage.setItem('countdownAppState', JSON.stringify(stateToSave));
-                } catch (e) { console.error("Fehler beim Speichern des App-Zustands im localStorage:", e); }
-            };
-
-            const saveEvents = () => {
-                try {
-                    localStorage.setItem('savedCountdownEvents', JSON.stringify(savedEvents));
-                } catch (e) { console.error("Fehler beim Speichern der Events im localStorage:", e); }
-            };
-
-            const loadState = () => {
-                try {
-                    const savedAppState = localStorage.getItem('countdownAppState');
-                    if (savedAppState) {
-                        const data = JSON.parse(savedAppState);
-                        mode = data.mode || 'targetDate';
-                        isMuted = data.isMuted || false;
-                        selectedDateTime = data.selectedDateTime; // Load without default
-                        days = data.days;
-                        hours = data.hours;
-                        minutes = data.minutes;
-                        seconds = data.seconds;
-                        if (data.isCountingDown && data.targetDate && new Date(data.targetDate).getTime() > new Date().getTime()) {
-                            targetDate = data.targetDate;
-                            isCountingDown = true;
-                            startCountdown(true);
-                        }
-                    }
-                    const savedEventsData = localStorage.getItem('savedCountdownEvents');
-                    if (savedEventsData) {
-                        savedEvents = JSON.parse(savedEventsData);
-                    }
-                } catch (e) { console.error("Fehler beim Laden des Zustands aus dem localStorage:", e); }
+            const saveEventsToStorage = () => {
+                localStorage.setItem('savedCountdownEvents', JSON.stringify(savedEvents));
             };
 
             const renderSavedEvents = () => {
                 savedEventsList.innerHTML = '';
+                savedEvents.sort((a, b) => a.name.localeCompare(b.name, 'de', { sensitivity: 'base' }));
+
                 if (savedEvents.length === 0) {
                     savedEventsList.innerHTML = '<p class="text-sm text-gray-500">Keine gespeicherten Events.</p>';
                     return;
@@ -220,13 +132,13 @@
                 
                 savedEvents.forEach((event, index) => {
                     const eventEl = document.createElement('div');
-                    eventEl.className = 'flex justify-between items-center bg-gray-100 p-2 rounded-lg';
+                    eventEl.className = 'flex justify-between items-center bg-gray-100 p-2 rounded-lg border border-gray-200';
                     eventEl.innerHTML = `
                         <span class="text-sm font-semibold truncate flex-1 mr-2">${event.name}</span>
                         <div class="flex space-x-1 flex-shrink-0">
-                            <button data-index="${index}" class="load-btn px-2 py-1 text-xs font-semibold bg-green-500 text-white rounded-md hover:bg-green-600">Laden</button>
-                            <button data-index="${index}" class="edit-btn px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded-md hover:bg-yellow-600">Bearbeiten</button>
-                            <button data-index="${index}" class="delete-btn px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-md hover:bg-red-600">Löschen</button>
+                            <button data-index="${index}" class="load-btn px-2 py-1 text-xs font-semibold bg-green-500 text-white rounded-md hover:bg-green-600 transition-all">Laden</button>
+                            <button data-index="${index}" class="edit-btn px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-all">Edit</button>
+                            <button data-index="${index}" class="delete-btn px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-md hover:bg-red-600 transition-all">Löschen</button>
                         </div>`;
                     savedEventsList.appendChild(eventEl);
                 });
@@ -239,45 +151,32 @@
 
                 startBtn.disabled = isCountingDown || !isStartable;
                 startBtn.className = `px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm ${startBtn.disabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-cyan-600 text-white shadow-md hover:bg-cyan-500 hover:scale-110'}`;
-                
                 resetBtn.disabled = !isCountingDown;
                 resetBtn.className = `px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm ${resetBtn.disabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-500 text-white shadow-md hover:bg-red-400 hover:scale-110'}`;
-                
                 saveBtn.classList.toggle('hidden', isCountingDown || !isStartable);
-                
+                muteBtn.className = `px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm ${isMuted ? 'bg-amber-500 text-white shadow-md hover:bg-amber-400' : 'bg-yellow-400 text-white shadow-md hover:bg-yellow-300'}`;
                 muteBtn.textContent = isMuted ? 'Ton an' : 'Ton aus';
-                muteBtn.className = `px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm ${isMuted ? 'bg-amber-500 text-white shadow-md hover:bg-amber-400 hover:scale-110' : 'bg-yellow-400 text-white shadow-md hover:bg-yellow-300 hover:scale-110'}`;
+                targetDateDisplay.textContent = `Zielzeit: ${targetDate ? new Date(targetDate).toLocaleString() : (selectedDateTime && mode === 'targetDate' ? new Date(selectedDateTime).toLocaleString() : '-')}`;
                 
-                targetDateDisplay.textContent = `Zielzeit: ${getFormattedTargetDate()}`;
-                saveAppState();
+                const state = { mode, selectedDateTime, days, hours, minutes, seconds, isMuted, isCountingDown, targetDate };
+                localStorage.setItem('countdownAppState', JSON.stringify(state));
             };
-            
+
             const updateUI = () => {
                 modeTargetDateBtn.className = `px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${mode === 'targetDate' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
                 modeCountdownBtn.className = `px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${mode === 'countdown' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
-                
-                const targetDateWrapper = document.getElementById('target-date-wrapper');
-                const countdownWrapper = document.getElementById('countdown-wrapper');
-                if (mode === 'targetDate') {
-                    targetDateWrapper.classList.remove('hidden');
-                    countdownWrapper.classList.add('hidden');
-                } else {
-                    targetDateWrapper.classList.add('hidden');
-                    countdownWrapper.classList.remove('hidden');
-                }
-
+                document.getElementById('target-date-wrapper').classList.toggle('hidden', mode !== 'targetDate');
+                document.getElementById('countdown-wrapper').classList.toggle('hidden', mode !== 'countdown');
                 updateButtonsAndDisplay();
                 renderSavedEvents();
             };
-            
-            const createAndAttachInputs = () => {
-                const targetDateWrapper = document.createElement('div');
-                targetDateWrapper.id = 'target-date-wrapper';
-                targetDateWrapper.innerHTML = `
-                    <div class="flex flex-col gap-4 w-full mb-4">
+
+            const createInputs = () => {
+                inputContainer.innerHTML = `
+                    <div id="target-date-wrapper" class="flex flex-col gap-4 w-full mb-4">
                         <div>
-                            <label for="target-date-preset-select" class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
-                            <select id="target-date-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm appearance-none cursor-pointer">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
+                            <select id="target-date-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border text-sm cursor-pointer appearance-none">
                                 <option value="" disabled selected hidden>Voreinstellung wählen</option>
                                 <option value="fussball-abfahrt">Fussball Abfahrt</option>
                                 <option value="now">Aktuelle Zeit</option>
@@ -288,375 +187,218 @@
                             </select>
                         </div>
                         <div>
-                            <label for="datetime-input" class="block text-xs font-medium text-slate-500 mb-1">Manuell eingeben</label>
-                            <input type="datetime-local" id="datetime-input" class="w-full px-3 py-2 bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm text-center">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Manuell eingeben</label>
+                            <input type="datetime-local" id="datetime-input" class="w-full px-3 py-2 bg-gray-100 rounded-xl border text-sm text-center">
                         </div>
-                    </div>`;
-                
-                const countdownWrapper = document.createElement('div');
-                countdownWrapper.id = 'countdown-wrapper';
-                countdownWrapper.innerHTML = `
-                    <div class="flex flex-col gap-4 w-full mb-4">
+                    </div>
+                    <div id="countdown-wrapper" class="hidden flex flex-col gap-4 w-full mb-4">
                         <div>
-                            <label for="countdown-preset-select" class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
-                            <select id="countdown-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm appearance-none cursor-pointer">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
+                            <select id="countdown-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border text-sm cursor-pointer appearance-none">
                                 <option value="" disabled selected hidden>Voreinstellung wählen</option>
-                                <option value="0:0:10">10 Sek</option><option value="0:1:0">1 Min</option><option value="0:5:0">5 Min</option><option value="0:10:0">10 Min</option><option value="0:15:0">15 Min</option><option value="0:30:0">30 Min</option><option value="0:45:0">45 Min</option><option value="1:0:0">60 Min</option><option value="2:0:0">2 Std</option><option value="10:0:0">10 Std</option>
+                                <option value="0:0:10">10 Sek</option><option value="0:1:0">1 Min</option><option value="0:5:0">5 Min</option><option value="0:10:0">10 Min</option><option value="0:15:0">15 Min</option><option value="0:30:0">30 Min</option><option value="0:45:0">45 Min</option><option value="1:0:0">60 Min</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Manuell eingeben</label>
                             <div class="flex justify-center space-x-2">
-                                ${['days:Tage', 'hours:Std', 'minutes:Min', 'seconds:Sek'].map(field => {
-                                    const [key, label] = field.split(':');
+                                ${['days:Tage', 'hours:Std', 'minutes:Min', 'seconds:Sek'].map(f => {
+                                    const [k, l] = f.split(':');
                                     return `<div class="flex flex-col items-center">
-                                        <input type="number" id="input-${key}" class="w-10 text-center px-1 py-2 bg-gray-100 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm" min="0" />
-                                        <span class="mt-1 text-xs text-slate-500">${label}</span>
+                                        <input type="number" id="input-${k}" class="w-10 text-center px-1 py-2 bg-gray-100 rounded-xl border text-sm" min="0">
+                                        <span class="mt-1 text-xs text-slate-500">${l}</span>
                                     </div>`
                                 }).join('')}
                             </div>
                         </div>
                     </div>`;
 
-                inputContainer.appendChild(targetDateWrapper);
-                inputContainer.appendChild(countdownWrapper);
-
-                // Attach Listeners
-                targetDateWrapper.querySelector('#datetime-input').addEventListener('input', (e) => {
-                    selectedDateTime = e.target.value;
-                    updateButtonsAndDisplay();
-                });
-                targetDateWrapper.querySelector('#target-date-preset-select').addEventListener('change', (e) => handleTargetDatePresetChange(e.target.value));
-
-                ['days', 'hours', 'minutes', 'seconds'].forEach(key => {
-                    countdownWrapper.querySelector(`#input-${key}`).addEventListener('input', (e) => {
-                        const value = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value));
-                        switch (key) {
-                            case 'days': days = value; break;
-                            case 'hours': hours = value; break;
-                            case 'minutes': minutes = value; break;
-                            case 'seconds': seconds = value; break;
-                        }
+                document.getElementById('datetime-input').addEventListener('input', (e) => { selectedDateTime = e.target.value; updateButtonsAndDisplay(); });
+                document.getElementById('target-date-preset-select').addEventListener('change', (e) => handleTargetDatePreset(e.target.value));
+                document.getElementById('countdown-preset-select').addEventListener('change', (e) => handleCountdownPreset(e.target.value));
+                ['days', 'hours', 'minutes', 'seconds'].forEach(k => {
+                    document.getElementById(`input-${k}`).addEventListener('input', (e) => {
+                        const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value));
+                        if(k === 'days') days = val; if(k === 'hours') hours = val; if(k === 'minutes') minutes = val; if(k === 'seconds') seconds = val;
                         updateButtonsAndDisplay();
                     });
                 });
-                countdownWrapper.querySelector('#countdown-preset-select').addEventListener('change', (e) => handleCountdownPresetChange(e.target.value));
-
-                // Set initial values from state
-                targetDateWrapper.querySelector('#datetime-input').value = selectedDateTime;
-                countdownWrapper.querySelector('#input-days').value = days ?? '';
-                countdownWrapper.querySelector('#input-hours').value = hours ?? '';
-                countdownWrapper.querySelector('#input-minutes').value = minutes ?? '';
-                countdownWrapper.querySelector('#input-seconds').value = seconds ?? '';
             };
 
-            const startCountdown = (isReload = false) => {
-                if (isCountingDown && !isReload) return;
-                clearInterval(countdownInterval);
-                
-                if (!isReload) {
-                    if (mode === 'countdown') {
-                        const totalMilliseconds = ((days || 0) * 86400000) + ((hours || 0) * 3600000) + ((minutes || 0) * 60000) + ((seconds || 0) * 1000);
-                        if (totalMilliseconds === 0) return;
-                        targetDate = new Date(new Date().getTime() + totalMilliseconds).toISOString();
-                    } else {
-                        if (!selectedDateTime) return;
-                        targetDate = new Date(selectedDateTime).toISOString();
-                    }
-                }
-                
-                isCountingDown = true;
-                
-                const tick = () => {
-                    const difference = new Date(targetDate).getTime() - new Date().getTime();
-                    if (difference <= 0) {
-                        clearInterval(countdownInterval);
-                        isCountingDown = false;
-                        // Die Zeile, die die Zielzeit gelöscht hat, wurde entfernt.
-                        daysEl.textContent = '00';
-                        hoursEl.textContent = '00';
-                        minutesEl.textContent = '00';
-                        secondsEl.textContent = '00';
-                        millisecondsEl.textContent = '00';
-                        playTone();
-                        updateUI();
-                        return;
-                    }
-                    daysEl.textContent = padNumber(Math.floor(difference / 86400000));
-                    hoursEl.textContent = padNumber(Math.floor((difference % 86400000) / 3600000));
-                    minutesEl.textContent = padNumber(Math.floor((difference % 3600000) / 60000));
-                    secondsEl.textContent = padNumber(Math.floor((difference % 60000) / 1000));
-                    millisecondsEl.textContent = padMilliseconds(difference % 1000);
-                };
-                
-                countdownInterval = setInterval(tick, 10);
-                tick();
-                updateUI();
-            };
-
-            const stopCountdown = () => {
-                clearInterval(countdownInterval);
-                isCountingDown = false;
-                targetDate = '';
-                daysEl.textContent = '00';
-                hoursEl.textContent = '00';
-                minutesEl.textContent = '00';
-                secondsEl.textContent = '00';
-                millisecondsEl.textContent = '00';
-                updateUI();
-            };
-
-            // --- Event Listeners ---
-
-            modeTargetDateBtn.addEventListener('click', () => {
-                if (mode === 'targetDate') return;
-                mode = 'targetDate';
-                if (!document.getElementById('datetime-input').value) {
-                    selectedDateTime = setNowAsDateTime();
-                    document.getElementById('datetime-input').value = selectedDateTime;
-                }
-                updateUI();
-            });
-
-            modeCountdownBtn.addEventListener('click', () => {
-                if (mode === 'countdown') return;
-                mode = 'countdown';
-                // Stellt sicher, dass die manuellen Eingabefelder immer die korrekten Werte aus dem Zustand anzeigen
-                document.getElementById('input-days').value = days ?? '';
-                document.getElementById('input-hours').value = hours ?? '';
-                document.getElementById('input-minutes').value = minutes ?? '';
-                document.getElementById('input-seconds').value = seconds ?? '';
-                updateUI();
-            });
-
-            startBtn.addEventListener('click', () => startCountdown(false));
-            resetBtn.addEventListener('click', stopCountdown);
-
-            muteBtn.addEventListener('click', () => {
-                isMuted = !isMuted;
-                updateUI();
-            });
-            
-            saveBtn.addEventListener('click', () => {
-                editingEventIndex = null;
-                modalTimeInputs.innerHTML = ''; 
-                saveModalTitle.textContent = 'Countdown speichern';
-                confirmSaveBtn.textContent = 'Speichern';
-                eventNameInput.value = '';
-                saveModal.classList.remove('hidden');
-                eventNameInput.focus();
-            });
-
-            const closeModal = () => {
-                modalTimeInputs.innerHTML = '';
-                saveModal.classList.add('hidden');
-                editingEventIndex = null;
-            };
-
-            cancelSaveBtn.addEventListener('click', closeModal);
-
-            confirmSaveBtn.addEventListener('click', () => {
-                const eventName = eventNameInput.value.trim();
-                if (eventName) {
-                    let eventData;
-                    if (editingEventIndex !== null) {
-                        const originalEvent = savedEvents[editingEventIndex];
-                        eventData = { ...originalEvent, name: eventName }; 
-                        if (originalEvent.mode === 'targetDate') {
-                            eventData.selectedDateTime = document.getElementById('modal-datetime-input').value;
-                        } else {
-                            eventData.days = parseInt(document.getElementById('modal-input-days').value) || null;
-                            eventData.hours = parseInt(document.getElementById('modal-input-hours').value) || null;
-                            eventData.minutes = parseInt(document.getElementById('modal-input-minutes').value) || null;
-                            eventData.seconds = parseInt(document.getElementById('modal-input-seconds').value) || null;
-                        }
-                        savedEvents[editingEventIndex] = eventData;
-                    } else {
-                        eventData = {
-                            name: eventName,
-                            mode: mode,
-                            selectedDateTime: mode === 'targetDate' ? selectedDateTime : null,
-                            days: mode === 'countdown' ? days : null,
-                            hours: mode === 'countdown' ? hours : null,
-                            minutes: mode === 'countdown' ? minutes : null,
-                            seconds: mode === 'countdown' ? seconds : null,
-                        };
-                        savedEvents.push(eventData);
-                    }
-                    saveEvents();
-                    closeModal();
-                    updateUI();
-                }
-            });
-
-            savedEventsList.addEventListener('click', (e) => {
-                const target = e.target.closest('button');
-                if (!target || !target.dataset.index) return;
-                const index = parseInt(target.dataset.index);
-                const event = savedEvents[index];
-                if (!event) return;
-
-                if (target.classList.contains('load-btn')) {
-                    mode = event.mode;
-                    selectedDateTime = event.selectedDateTime;
-                    days = event.days; 
-                    hours = event.hours; 
-                    minutes = event.minutes; 
-                    seconds = event.seconds;
-                    
-                    document.getElementById('datetime-input').value = selectedDateTime;
-                    document.getElementById('input-days').value = days ?? '';
-                    document.getElementById('input-hours').value = hours ?? '';
-                    document.getElementById('input-minutes').value = minutes ?? '';
-                    document.getElementById('input-seconds').value = seconds ?? '';
-                    
-                    updateUI();
-                } else if (target.classList.contains('edit-btn')) {
-                    editingEventIndex = index;
-                    if (event.mode === 'targetDate') {
-                        modalTimeInputs.innerHTML = `
-                            <label for="modal-datetime-input" class="block text-xs font-medium text-slate-500 mb-1">Neue Zielzeit</label>
-                            <input type="datetime-local" id="modal-datetime-input" value="${event.selectedDateTime || ''}" class="w-full px-3 py-2 bg-gray-100 rounded-lg border border-gray-300 text-sm text-center">
-                        `;
-                    } else {
-                         modalTimeInputs.innerHTML = `
-                            <label class="block text-xs font-medium text-slate-500 mb-1">Neue Countdown-Zeit</label>
-                            <div class="flex justify-center space-x-0.5">
-                                ${['days:Tage', 'hours:Std', 'minutes:Min', 'seconds:Sek'].map(field => {
-                                    const [key, label] = field.split(':');
-                                    return `<div class="flex flex-col items-center">
-                                        <input type="number" id="modal-input-${key}" value="${event[key] ?? ''}" class="w-10 text-center px-1 py-2 bg-gray-100 rounded-lg border border-gray-300 text-sm" min="0" />
-                                        <span class="mt-1 text-xs text-slate-500">${label}</span>
-                                    </div>`
-                                }).join('')}
-                            </div>
-                        `;
-                    }
-                    saveModalTitle.textContent = 'Ereignis bearbeiten';
-                    confirmSaveBtn.textContent = 'Aktualisieren';
-                    eventNameInput.value = event.name;
-                    saveModal.classList.remove('hidden');
-                    eventNameInput.focus();
-                } else if (target.classList.contains('delete-btn')) {
-                    savedEvents.splice(index, 1);
-                    saveEvents();
-                    updateUI();
-                }
-            });
-            
-            const handleCountdownPresetChange = (value) => {
-                const [h, m, s] = value.split(':').map(Number);
-                days = 0; hours = h; minutes = m; seconds = s;
-                document.getElementById('input-days').value = days;
-                document.getElementById('input-hours').value = hours;
-                document.getElementById('input-minutes').value = minutes;
-                document.getElementById('input-seconds').value = seconds;
-                updateUI();
-                document.getElementById('countdown-preset-select').selectedIndex = 0;
-            };
-
-            const handleTargetDatePresetChange = (value) => {
-                if (value === 'now') {
-                    selectedDateTime = setNowAsDateTime();
-                    document.getElementById('datetime-input').value = selectedDateTime;
-                    updateUI();
-                    document.getElementById('target-date-preset-select').selectedIndex = 0;
-                    return;
-                }
-
-                let newDate = new Date();
-                switch (value) {
-                    case 'fussball-abfahrt':
-                        newDate.setHours(14, 0, 0, 0);
-                        break;
-                    case 'next-9am':
-                        newDate.setHours(9, 0, 0, 0);
-                        if (newDate.getTime() <= new Date().getTime()) newDate.setDate(newDate.getDate() + 1);
-                        break;
-                    case 'tomorrow-9am':
-                        newDate.setDate(newDate.getDate() + 1);
-                        newDate.setHours(9, 0, 0, 0);
-                        break;
-                    case 'jan-1-next-year':
-                        newDate.setMonth(0, 1);
-                        newDate.setHours(0, 0, 0, 0);
-                        if (newDate.getTime() <= new Date().getTime()) newDate.setFullYear(newDate.getFullYear() + 1);
-                        break;
-                    case 'next-march-27':
-                        const targetMonth = 2, targetDay = 27;
-                        if (newDate.getMonth() > targetMonth || (newDate.getMonth() === targetMonth && newDate.getDate() >= targetDay)) {
-                            newDate.setFullYear(newDate.getFullYear() + 1);
-                        }
-                        newDate.setMonth(targetMonth, targetDay);
-                        newDate.setHours(0, 0, 0, 0);
-                        break;
-                }
-                selectedDateTime = `${newDate.getFullYear()}-${String(newDate.getMonth() + 1).padStart(2, '0')}-${String(newDate.getDate()).padStart(2, '0')}T${String(newDate.getHours()).padStart(2, '0')}:${String(newDate.getMinutes()).padStart(2, '0')}`;
+            const handleTargetDatePreset = (val) => {
+                let d = new Date();
+                if (val === 'now') d = new Date();
+                else if (val === 'fussball-abfahrt') d.setHours(14,0,0,0);
+                else if (val === 'next-9am') { d.setHours(9,0,0,0); if(d < new Date()) d.setDate(d.getDate()+1); }
+                else if (val === 'tomorrow-9am') { d.setDate(d.getDate()+1); d.setHours(9,0,0,0); }
+                else if (val === 'jan-1-next-year') { d.setFullYear(d.getFullYear()+(d.getMonth()===0&&d.getDate()===1?0:1),0,1); d.setHours(0,0,0,0); }
+                else if (val === 'next-march-27') { d.setFullYear(d.getFullYear()+(d.getMonth()>2||(d.getMonth()===2&&d.getDate()>=27)?1:0),2,27); d.setHours(0,0,0,0); }
+                selectedDateTime = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
                 document.getElementById('datetime-input').value = selectedDateTime;
                 updateUI();
                 document.getElementById('target-date-preset-select').selectedIndex = 0;
             };
 
-            // --- CSV EXPORT / IMPORT LOGIK ---
-            document.getElementById('export-csv-btn').addEventListener('click', () => {
-                if (savedEvents.length === 0) return;
-                let csvContent = "data:text/csv;charset=utf-8,Name,Mode,SelectedDateTime,Days,Hours,Minutes,Seconds\n";
-                savedEvents.forEach(e => {
-                    const row = [e.name, e.mode, e.selectedDateTime || "", e.days || 0, e.hours || 0, e.minutes || 0, e.seconds || 0].join(",");
-                    csvContent += row + "\n";
+            const handleCountdownPreset = (val) => {
+                const [h, m, s] = val.split(':').map(Number);
+                days = 0; hours = h; minutes = m; seconds = s;
+                document.getElementById('input-days').value = 0;
+                document.getElementById('input-hours').value = h;
+                document.getElementById('input-minutes').value = m;
+                document.getElementById('input-seconds').value = s;
+                updateUI();
+                document.getElementById('countdown-preset-select').selectedIndex = 0;
+            };
+
+            const startCountdown = (reload = false) => {
+                if (isCountingDown && !reload) return;
+                clearInterval(countdownInterval);
+                if (!reload) {
+                    if (mode === 'countdown') {
+                        const ms = ((days||0)*86400000) + ((hours||0)*3600000) + ((minutes||0)*60000) + ((seconds||0)*1000);
+                        targetDate = new Date(Date.now() + ms).toISOString();
+                    } else {
+                        targetDate = new Date(selectedDateTime).toISOString();
+                    }
+                }
+                isCountingDown = true;
+                countdownInterval = setInterval(() => {
+                    const diff = new Date(targetDate).getTime() - Date.now();
+                    if (diff <= 0) {
+                        clearInterval(countdownInterval);
+                        isCountingDown = false;
+                        if(!isMuted) playTone();
+                        updateUI();
+                        return;
+                    }
+                    daysEl.textContent = padNumber(Math.floor(diff / 86400000));
+                    hoursEl.textContent = padNumber(Math.floor((diff % 86400000) / 3600000));
+                    minutesEl.textContent = padNumber(Math.floor((diff % 3600000) / 60000));
+                    secondsEl.textContent = padNumber(Math.floor((diff % 60000) / 1000));
+                    millisecondsEl.textContent = padMilliseconds(diff % 1000);
+                }, 10);
+                updateUI();
+            };
+
+            const playTone = () => {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Originale 9-Ton-Folge
+                const frequencies = [440, 660, 880, 440, 660, 880, 440, 660, 880];
+                const duration = 0.2;
+                const delay = 0.1;
+
+                frequencies.forEach((freq, index) => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    const startTime = audioContext.currentTime + (index * (duration + delay));
+                    oscillator.start(startTime);
+                    oscillator.stop(startTime + duration);
                 });
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "countdown_events.csv");
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+            };
+
+            exportCsvBtn.addEventListener('click', () => {
+                const header = "Name,Mode,DateTime,Days,Hours,Minutes,Seconds\n";
+                const rows = savedEvents.map(e => `"${e.name}",${e.mode},${e.selectedDateTime||''},${e.days||0},${e.hours||0},${e.minutes||0},${e.seconds||0}`).join('\n');
+                const blob = new Blob([header + rows], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob); a.download = 'countdown_liste.csv'; a.click();
             });
 
-            document.getElementById('import-csv-file').addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
+            importCsvBtn.addEventListener('click', () => csvFileInput.click());
+            csvFileInput.addEventListener('change', (e) => {
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    const text = e.target.result;
-                    const rows = text.split("\n").slice(1); // Header überspringen
-                    rows.forEach(row => {
-                        if (!row.trim()) return;
-                        const cols = row.split(",");
-                        savedEvents.push({
-                            name: cols[0],
-                            mode: cols[1],
-                            selectedDateTime: cols[2] === "" ? null : cols[2],
-                            days: parseInt(cols[3]) || null,
-                            hours: parseInt(cols[4]) || null,
-                            minutes: parseInt(cols[5]) || null,
-                            seconds: parseInt(cols[6]) || null
-                        });
+                reader.onload = (ev) => {
+                    const lines = ev.target.result.split('\n').slice(1);
+                    lines.forEach(line => {
+                        const p = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$)/g);
+                        if (p && p.length >= 7) {
+                            const name = p[0].replace(/"/g, '').trim();
+                            if (!savedEvents.some(se => se.name === name)) {
+                                savedEvents.push({
+                                    name, mode: p[1].trim(), selectedDateTime: p[2].trim() || null,
+                                    days: parseInt(p[3]) || 0, hours: parseInt(p[4]) || 0,
+                                    minutes: parseInt(p[5]) || 0, seconds: parseInt(p[6]) || 0
+                                });
+                            }
+                        }
                     });
-                    saveEvents();
-                    renderSavedEvents();
+                    saveEventsToStorage(); renderSavedEvents(); updateUI();
                 };
-                reader.readAsText(file);
-                event.target.value = ''; // Reset
+                reader.readAsText(e.target.files[0]);
             });
+
+            modeTargetDateBtn.addEventListener('click', () => { mode = 'targetDate'; updateUI(); });
+            modeCountdownBtn.addEventListener('click', () => { mode = 'countdown'; updateUI(); });
+            startBtn.addEventListener('click', () => startCountdown());
+            resetBtn.addEventListener('click', () => { clearInterval(countdownInterval); isCountingDown = false; targetDate = ''; updateUI(); });
+            muteBtn.addEventListener('click', () => { isMuted = !isMuted; updateUI(); });
             
-            // Initialisierung
-            loadState();
-            if (!selectedDateTime) {
-                selectedDateTime = setNowAsDateTime();
-            }
-            createAndAttachInputs();
+            saveBtn.addEventListener('click', () => {
+                editingEventIndex = null;
+                eventNameInput.value = '';
+                saveModal.classList.remove('hidden');
+            });
+
+            confirmSaveBtn.addEventListener('click', () => {
+                const name = eventNameInput.value.trim();
+                if (!name) return;
+                const data = { name, mode, selectedDateTime: mode === 'targetDate' ? selectedDateTime : null, days, hours, minutes, seconds };
+                if (editingEventIndex !== null) savedEvents[editingEventIndex] = data;
+                else savedEvents.push(data);
+                saveEventsToStorage(); saveModal.classList.add('hidden'); updateUI();
+            });
+
+            cancelSaveBtn.addEventListener('click', () => saveModal.classList.add('hidden'));
+
+            savedEventsList.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const idx = parseInt(btn.dataset.index);
+                const ev = savedEvents.find((_, i) => i === idx);
+                if (btn.classList.contains('load-btn')) {
+                    mode = ev.mode; selectedDateTime = ev.selectedDateTime;
+                    days = ev.days; hours = ev.hours; minutes = ev.minutes; seconds = ev.seconds;
+                    if(mode === 'targetDate') document.getElementById('datetime-input').value = selectedDateTime;
+                    else {
+                        document.getElementById('input-days').value = days; document.getElementById('input-hours').value = hours;
+                        document.getElementById('input-minutes').value = minutes; document.getElementById('input-seconds').value = seconds;
+                    }
+                    updateUI();
+                } else if (btn.classList.contains('delete-btn')) {
+                    savedEvents.splice(idx, 1); saveEventsToStorage(); updateUI();
+                } else if (btn.classList.contains('edit-btn')) {
+                    editingEventIndex = idx;
+                    eventNameInput.value = ev.name;
+                    saveModal.classList.remove('hidden');
+                }
+            });
+
+            const stored = localStorage.getItem('savedCountdownEvents');
+            if (stored) savedEvents = JSON.parse(stored);
+            createInputs();
+            const appState = localStorage.getItem('countdownAppState');
+            if (appState) {
+                const s = JSON.parse(appState);
+                mode = s.mode; selectedDateTime = s.selectedDateTime || setNowAsDateTime();
+                isMuted = s.isMuted; days = s.days; hours = s.hours; minutes = s.minutes; seconds = s.seconds;
+                if(s.isCountingDown && s.targetDate && new Date(s.targetDate) > new Date()) {
+                    targetDate = s.targetDate; startCountdown(true);
+                }
+            } else { selectedDateTime = setNowAsDateTime(); }
+            
+            document.getElementById('datetime-input').value = selectedDateTime;
+            ['days', 'hours', 'minutes', 'seconds'].forEach(k => {
+                const el = document.getElementById(`input-${k}`);
+                if(el) el.value = (k==='days'?days:(k==='hours'?hours:(k==='minutes'?minutes:seconds))) ?? '';
+            });
             updateUI();
-            if (!isCountingDown) {
-                // Initial display auf 00 setzen
-                 daysEl.textContent = '00';
-                 hoursEl.textContent = '00';
-                 minutesEl.textContent = '00';
-                 secondsEl.textContent = '00';
-                 millisecondsEl.textContent = '00';
-            }
         });
     </script>
 </body>
-    </html>
+</html>
