@@ -44,7 +44,8 @@
         <div id="save-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
             <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
                 <h3 id="save-modal-title" class="text-lg font-bold mb-4">Countdown speichern</h3>
-                <div id="modal-time-inputs" class="mb-4"></div>
+                <div id="modal-time-inputs" class="mb-4">
+                    </div>
                 <input type="text" id="event-name-input" placeholder="Name des Ereignisses" class="w-full p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <div class="flex justify-end space-x-2">
                     <button id="cancel-save-button" class="px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-full hover:bg-gray-300">Abbrechen</button>
@@ -282,7 +283,6 @@
 
             const playTone = () => {
                 if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                // Originale 9-Ton-Folge
                 const frequencies = [440, 660, 880, 440, 660, 880, 440, 660, 880];
                 const duration = 0.2;
                 const delay = 0.1;
@@ -342,15 +342,54 @@
             saveBtn.addEventListener('click', () => {
                 editingEventIndex = null;
                 eventNameInput.value = '';
+                // Aktuelle Werte in das Modal laden
+                if (mode === 'targetDate') {
+                    modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Zielzeit</label>
+                    <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-300 rounded-lg mb-2" value="${selectedDateTime}">`;
+                } else {
+                    modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Dauer (T:H:M:S)</label>
+                    <div class="flex space-x-1 mb-2">
+                        <input type="number" id="modal-input-days" class="w-1/4 p-1 border rounded" placeholder="T" value="${days||0}">
+                        <input type="number" id="modal-input-hours" class="w-1/4 p-1 border rounded" placeholder="H" value="${hours||0}">
+                        <input type="number" id="modal-input-minutes" class="w-1/4 p-1 border rounded" placeholder="M" value="${minutes||0}">
+                        <input type="number" id="modal-input-seconds" class="w-1/4 p-1 border rounded" placeholder="S" value="${seconds||0}">
+                    </div>`;
+                }
                 saveModal.classList.remove('hidden');
             });
 
             confirmSaveBtn.addEventListener('click', () => {
                 const name = eventNameInput.value.trim();
                 if (!name) return;
-                const data = { name, mode, selectedDateTime: mode === 'targetDate' ? selectedDateTime : null, days, hours, minutes, seconds };
-                if (editingEventIndex !== null) savedEvents[editingEventIndex] = data;
-                else savedEvents.push(data);
+
+                let data;
+                if (editingEventIndex !== null) {
+                    // Werte aus dem Modal lesen (Edit-Modus)
+                    const evMode = savedEvents[editingEventIndex].mode;
+                    if (evMode === 'targetDate') {
+                        data = { 
+                            name, 
+                            mode: evMode, 
+                            selectedDateTime: document.getElementById('modal-datetime-input').value, 
+                            days: null, hours: null, minutes: null, seconds: null 
+                        };
+                    } else {
+                        data = { 
+                            name, 
+                            mode: evMode, 
+                            selectedDateTime: null, 
+                            days: parseInt(document.getElementById('modal-input-days').value) || 0,
+                            hours: parseInt(document.getElementById('modal-input-hours').value) || 0,
+                            minutes: parseInt(document.getElementById('modal-input-minutes').value) || 0,
+                            seconds: parseInt(document.getElementById('modal-input-seconds').value) || 0
+                        };
+                    }
+                    savedEvents[editingEventIndex] = data;
+                } else {
+                    // Werte aus dem aktuellen Haupt-State lesen (Neu Speichern)
+                    data = { name, mode, selectedDateTime: mode === 'targetDate' ? selectedDateTime : null, days, hours, minutes, seconds };
+                    savedEvents.push(data);
+                }
                 saveEventsToStorage(); saveModal.classList.add('hidden'); updateUI();
             });
 
@@ -360,7 +399,7 @@
                 const btn = e.target.closest('button');
                 if (!btn) return;
                 const idx = parseInt(btn.dataset.index);
-                const ev = savedEvents.find((_, i) => i === idx);
+                const ev = savedEvents[idx];
                 if (btn.classList.contains('load-btn')) {
                     mode = ev.mode; selectedDateTime = ev.selectedDateTime;
                     days = ev.days; hours = ev.hours; minutes = ev.minutes; seconds = ev.seconds;
@@ -375,6 +414,19 @@
                 } else if (btn.classList.contains('edit-btn')) {
                     editingEventIndex = idx;
                     eventNameInput.value = ev.name;
+                    // Modal mit den spezifischen Werten des gespeicherten Events füllen
+                    if (ev.mode === 'targetDate') {
+                        modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Zielzeit</label>
+                        <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-300 rounded-lg mb-2" value="${ev.selectedDateTime}">`;
+                    } else {
+                        modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Dauer (T:H:M:S)</label>
+                        <div class="flex space-x-1 mb-2">
+                            <input type="number" id="modal-input-days" class="w-1/4 p-1 border rounded" placeholder="T" value="${ev.days||0}">
+                            <input type="number" id="modal-input-hours" class="w-1/4 p-1 border rounded" placeholder="H" value="${ev.hours||0}">
+                            <input type="number" id="modal-input-minutes" class="w-1/4 p-1 border rounded" placeholder="M" value="${ev.minutes||0}">
+                            <input type="number" id="modal-input-seconds" class="w-1/4 p-1 border rounded" placeholder="S" value="${ev.seconds||0}">
+                        </div>`;
+                    }
                     saveModal.classList.remove('hidden');
                 }
             });
