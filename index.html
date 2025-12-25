@@ -74,8 +74,14 @@
         
         <div class="mt-4 p-4 bg-white rounded-2xl shadow-lg border border-gray-200">
             <h2 class="text-lg font-bold mb-2">Gespeicherte Countdown-Ereignisse</h2>
-            <div id="saved-events-list" class="space-y-2">
+            <div id="saved-events-list" class="space-y-2 mb-4">
                 <p class="text-sm text-gray-500">Keine gespeicherten Events.</p>
+            </div>
+
+            <div class="flex space-x-2 pt-2 border-t border-gray-100">
+                <button id="export-csv-btn" class="flex-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">CSV Export</button>
+                <label for="import-csv-file" class="flex-1 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors text-center cursor-pointer">CSV Import</label>
+                <input type="file" id="import-csv-file" class="hidden" accept=".csv">
             </div>
         </div>
     </div>
@@ -590,6 +596,50 @@
                 updateUI();
                 document.getElementById('target-date-preset-select').selectedIndex = 0;
             };
+
+            // --- CSV EXPORT / IMPORT LOGIK ---
+            document.getElementById('export-csv-btn').addEventListener('click', () => {
+                if (savedEvents.length === 0) return;
+                let csvContent = "data:text/csv;charset=utf-8,Name,Mode,SelectedDateTime,Days,Hours,Minutes,Seconds\n";
+                savedEvents.forEach(e => {
+                    const row = [e.name, e.mode, e.selectedDateTime || "", e.days || 0, e.hours || 0, e.minutes || 0, e.seconds || 0].join(",");
+                    csvContent += row + "\n";
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "countdown_events.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            document.getElementById('import-csv-file').addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const rows = text.split("\n").slice(1); // Header überspringen
+                    rows.forEach(row => {
+                        if (!row.trim()) return;
+                        const cols = row.split(",");
+                        savedEvents.push({
+                            name: cols[0],
+                            mode: cols[1],
+                            selectedDateTime: cols[2] === "" ? null : cols[2],
+                            days: parseInt(cols[3]) || null,
+                            hours: parseInt(cols[4]) || null,
+                            minutes: parseInt(cols[5]) || null,
+                            seconds: parseInt(cols[6]) || null
+                        });
+                    });
+                    saveEvents();
+                    renderSavedEvents();
+                };
+                reader.readAsText(file);
+                event.target.value = ''; // Reset
+            });
             
             // Initialisierung
             loadState();
@@ -609,4 +659,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
