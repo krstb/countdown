@@ -67,7 +67,7 @@
                 </div>
             </div>
             <div id="saved-events-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                <p class="text-sm text-gray-500">nichts gespeichert</p>
+                <p class="text-sm text-gray-500">nichts gespeicherten</p>
             </div>
         </div>
     </div>
@@ -111,9 +111,6 @@
             let currentTitle = '';
             let pendingTitle = ''; 
             let hasManualChanges = false;
-            
-            // Vergleiswerte um Änderungen beim Start zu detektieren
-            let loadedValues = { dt: '', d: null, h: null, m: null, s: null };
 
             const padNumber = (num) => String(num).padStart(2, '0');
             const padMilliseconds = (num) => String(Math.floor(num / 10)).padStart(2, '0');
@@ -122,6 +119,11 @@
             const setNowAsDateTime = () => {
                 const now = new Date();
                 return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            };
+
+            const clearTitles = () => {
+                currentTitle = '';
+                pendingTitle = '';
             };
 
             const saveEventsToStorage = () => {
@@ -145,7 +147,7 @@
                         <div class="flex space-x-1 flex-shrink-0">
                             <button data-index="${index}" class="load-btn px-2 py-1 text-xs font-semibold bg-green-500 text-white rounded-md hover:bg-green-600 transition-all">Laden</button>
                             <button data-index="${index}" class="edit-btn px-2 py-1 text-xs font-semibold bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-all">Edit</button>
-                            <button data-index="${index}" class="delete-btn px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-md hover:bg-red-600 transition-all">Löschen</button>
+                            <button data-index="${index}" class="delete-btn px-2 py-1 text-xs font-semibold bg-red-500 text-white rounded-md hover:bg-red-600 transition-all">LÃ¶schen</button>
                         </div>`;
                     savedEventsList.appendChild(eventEl);
                 });
@@ -167,7 +169,7 @@
                 
                 mainTitle.textContent = currentTitle ? `Countdown ${currentTitle}` : 'Countdown';
 
-                const state = { mode, selectedDateTime, days, hours, minutes, seconds, isMuted, isCountingDown, targetDate, currentTitle, pendingTitle, hasManualChanges, loadedValues };
+                const state = { mode, selectedDateTime, days, hours, minutes, seconds, isMuted, isCountingDown, targetDate, currentTitle, pendingTitle, hasManualChanges };
                 localStorage.setItem('countdownAppState', JSON.stringify(state));
             };
 
@@ -186,13 +188,13 @@
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
                             <select id="target-date-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border text-sm cursor-pointer appearance-none">
-                                <option value="" disabled selected hidden>Voreinstellung wählen</option>
+                                <option value="" disabled selected hidden>Voreinstellung wÃ¤hlen</option>
                                 <option value="fussball-abfahrt">Fussball Abfahrt</option>
                                 <option value="now">Aktuelle Zeit</option>
-                                <option value="next-9am">Nächster 9.00 Uhr</option>
+                                <option value="next-9am">NÃ¤chster 9.00 Uhr</option>
                                 <option value="tomorrow-9am">Morgen um 9.00 Uhr</option>
-                                <option value="jan-1-next-year">Nächster 01.01.</option>
-                                <option value="next-march-27">Nächster 27.03.</option>
+                                <option value="jan-1-next-year">NÃ¤chster 01.01.</option>
+                                <option value="next-march-27">NÃ¤chster 27.03.</option>
                             </select>
                         </div>
                         <div>
@@ -204,7 +206,7 @@
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Voreinstellungen</label>
                             <select id="countdown-preset-select" class="w-full px-3 py-2 bg-gray-100 rounded-xl border text-sm cursor-pointer appearance-none">
-                                <option value="" disabled selected hidden>Voreinstellung wählen</option>
+                                <option value="" disabled selected hidden>Voreinstellung wÃ¤hlen</option>
                                 <option value="0:0:10">10 Sek</option><option value="0:1:0">1 Min</option><option value="0:5:0">5 Min</option><option value="0:10:0">10 Min</option><option value="0:15:0">15 Min</option><option value="0:30:0">30 Min</option><option value="0:45:0">45 Min</option><option value="1:0:0">60 Min</option>
                             </select>
                         </div>
@@ -225,18 +227,18 @@
                 document.getElementById('datetime-input').addEventListener('input', (e) => { 
                     selectedDateTime = e.target.value; 
                     hasManualChanges = true;
-                    if (!isCountingDown) pendingTitle = ''; 
+                    pendingTitle = ''; // Bei manueller Ã„nderung wird der pendingTitle gelÃ¶scht
                     updateButtonsAndDisplay(); 
                 });
                 document.getElementById('target-date-preset-select').addEventListener('change', (e) => { 
                     handleTargetDatePreset(e.target.value); 
                     hasManualChanges = true;
-                    if (!isCountingDown) pendingTitle = '';
+                    pendingTitle = '';
                 });
                 document.getElementById('countdown-preset-select').addEventListener('change', (e) => { 
                     handleCountdownPreset(e.target.value); 
                     hasManualChanges = true;
-                    if (!isCountingDown) pendingTitle = '';
+                    pendingTitle = '';
                 });
                 ['days', 'hours', 'minutes', 'seconds'].forEach(k => {
                     const el = document.getElementById(`input-${k}`);
@@ -245,7 +247,7 @@
                             const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value));
                             if(k === 'days') days = val; if(k === 'hours') hours = val; if(k === 'minutes') minutes = val; if(k === 'seconds') seconds = val;
                             hasManualChanges = true;
-                            if (!isCountingDown) pendingTitle = '';
+                            pendingTitle = ''; // Bei manueller Ã„nderung wird der pendingTitle gelÃ¶scht
                             updateButtonsAndDisplay();
                         });
                     }
@@ -281,32 +283,20 @@
                 if (isCountingDown && !reload) return;
                 clearInterval(countdownInterval);
                 if (!reload) {
-                    // PRÜFUNG: Wurde seit dem Laden manuell etwas geändert?
-                    let isModified = false;
-                    if (mode === 'targetDate') {
-                        if (selectedDateTime !== loadedValues.dt) isModified = true;
-                    } else {
-                        if ((days||0) !== (loadedValues.d||0) || (hours||0) !== (loadedValues.h||0) || 
-                            (minutes||0) !== (loadedValues.m||0) || (seconds||0) !== (loadedValues.s||0)) {
-                            isModified = true;
-                        }
-                    }
-
-                    if (pendingTitle && !isModified) {
-                        currentTitle = pendingTitle;
-                    } else {
-                        // Wenn manuell geändert oder kein pendingTitle -> Titel weg
-                        currentTitle = '';
-                    }
-                    
-                    pendingTitle = ''; 
-                    hasManualChanges = false;
-
                     if (mode === 'countdown') {
                         const ms = ((days||0)*86400000) + ((hours||0)*3600000) + ((minutes||0)*60000) + ((seconds||0)*1000);
                         targetDate = new Date(Date.now() + ms).toISOString();
                     } else {
                         targetDate = new Date(selectedDateTime).toISOString();
+                    }
+                    
+                    // Titel-Logik: Nur beim Starten wird der Titel gesetzt.
+                    // Wenn keine manuellen Ã„nderungen vorlagen und ein pendingTitle existiert, wird dieser Ã¼bernommen.
+                    // Ansonsten (bei manuellen Ã„nderungen oder leerem Speicher) wird blanko geschrieben.
+                    if (!hasManualChanges && pendingTitle) {
+                        currentTitle = pendingTitle;
+                    } else {
+                        currentTitle = '';
                     }
                 }
                 isCountingDown = true;
@@ -388,7 +378,8 @@
                 clearInterval(countdownInterval); 
                 isCountingDown = false; 
                 targetDate = ''; 
-                hasManualChanges = false;
+                // Reset Taste Ã¤ndert die Ãœberschrift nicht (currentTitle bleibt), 
+                // aber bereitet das System auf neue Eingaben vor.
                 updateUI(); 
             });
 
@@ -399,7 +390,7 @@
                 eventNameInput.value = '';
                 if (mode === 'targetDate') {
                     modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Zielzeit</label>
-                    <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-300 rounded-lg mb-2" value="${selectedDateTime}">`;
+                    <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-200 rounded-lg mb-2" value="${selectedDateTime}">`;
                 } else {
                     modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Dauer (T:H:M:S)</label>
                     <div class="flex space-x-1 mb-2">
@@ -453,25 +444,19 @@
                 const idx = parseInt(btn.dataset.index);
                 const ev = savedEvents[idx];
                 if (btn.classList.contains('load-btn')) {
-                    pendingTitle = ev.name; 
-                    if(!isCountingDown) currentTitle = ''; 
-                    
-                    mode = ev.mode; selectedDateTime = ev.selectedDateTime;
+                    // Laden Ã¤ndert die Ãœberschrift nicht! Nur den Zwischenspeicher (pendingTitle)
+                    mode = ev.mode; 
+                    selectedDateTime = ev.selectedDateTime;
                     days = ev.days; hours = ev.hours; minutes = ev.minutes; seconds = ev.seconds;
-                    
-                    // Vergleichswerte sichern
-                    loadedValues = { dt: selectedDateTime, d: days, h: hours, m: minutes, s: seconds };
+                    pendingTitle = ev.name; 
                     hasManualChanges = false; 
-
-                    if(mode === 'targetDate') {
-                         setTimeout(() => { if(document.getElementById('datetime-input')) document.getElementById('datetime-input').value = selectedDateTime; }, 0);
-                    } else {
-                         setTimeout(() => {
-                            if(document.getElementById('input-days')) document.getElementById('input-days').value = formatInputVal(days);
-                            if(document.getElementById('input-hours')) document.getElementById('input-hours').value = formatInputVal(hours);
-                            if(document.getElementById('input-minutes')) document.getElementById('input-minutes').value = formatInputVal(minutes);
-                            if(document.getElementById('input-seconds')) document.getElementById('input-seconds').value = formatInputVal(seconds);
-                         }, 0);
+                    
+                    if(mode === 'targetDate') document.getElementById('datetime-input').value = selectedDateTime;
+                    else {
+                        document.getElementById('input-days').value = formatInputVal(days);
+                        document.getElementById('input-hours').value = formatInputVal(hours);
+                        document.getElementById('input-minutes').value = formatInputVal(minutes);
+                        document.getElementById('input-seconds').value = formatInputVal(seconds);
                     }
                     updateUI();
                 } else if (btn.classList.contains('delete-btn')) {
@@ -481,7 +466,7 @@
                     eventNameInput.value = ev.name;
                     if (ev.mode === 'targetDate') {
                         modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Zielzeit</label>
-                        <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-300 rounded-lg mb-2" value="${ev.selectedDateTime}">`;
+                        <input type="datetime-local" id="modal-datetime-input" class="w-full p-2 border border-gray-200 rounded-lg mb-2" value="${ev.selectedDateTime}">`;
                     } else {
                         modalTimeInputs.innerHTML = `<label class="block text-xs font-medium text-slate-500 mb-1">Dauer (T:H:M:S)</label>
                         <div class="flex space-x-1 mb-2">
@@ -506,7 +491,6 @@
                 currentTitle = s.currentTitle || '';
                 pendingTitle = s.pendingTitle || '';
                 hasManualChanges = s.hasManualChanges || false;
-                loadedValues = s.loadedValues || { dt: '', d: null, h: null, m: null, s: null };
                 if(s.isCountingDown && s.targetDate && new Date(s.targetDate) > new Date()) {
                     targetDate = s.targetDate; startCountdown(true);
                 }
