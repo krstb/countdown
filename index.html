@@ -12,7 +12,7 @@
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col items-center pt-8 p-4 text-slate-800">
     <div id="countdown-app" class="w-full max-w-sm bg-white rounded-2xl shadow-lg p-4 border border-gray-200">
-        <h1 class="text-2xl font-extrabold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-600">
+        <h1 id="main-title" class="text-2xl font-extrabold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-600">
             Countdown
         </h1>
 
@@ -89,14 +89,13 @@
             const millisecondsEl = document.getElementById('time-milliseconds');
             const savedEventsList = document.getElementById('saved-events-list');
             const saveModal = document.getElementById('save-modal');
-            const saveModalTitle = document.getElementById('save-modal-title');
-            const modalTimeInputs = document.getElementById('modal-time-inputs');
             const eventNameInput = document.getElementById('event-name-input');
             const confirmSaveBtn = document.getElementById('confirm-save-button');
             const cancelSaveBtn = document.getElementById('cancel-save-button');
             const exportCsvBtn = document.getElementById('export-csv-btn');
             const importCsvBtn = document.getElementById('import-csv-btn');
             const csvFileInput = document.getElementById('csv-file-input');
+            const mainTitle = document.getElementById('main-title');
 
             let mode = 'targetDate';
             let selectedDateTime = '';
@@ -108,16 +107,22 @@
             let audioContext = null;
             let savedEvents = [];
             let editingEventIndex = null;
+            let currentTitle = '';
+            let pendingTitle = ''; 
+            let hasManualChanges = false;
 
             const padNumber = (num) => String(num).padStart(2, '0');
             const padMilliseconds = (num) => String(Math.floor(num / 10)).padStart(2, '0');
-
-            // Hilfsfunktion für leere Felder bei 0
             const formatInputVal = (val) => (val === 0 || val === null) ? '' : val;
 
             const setNowAsDateTime = () => {
                 const now = new Date();
                 return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            };
+
+            const clearTitles = () => {
+                currentTitle = '';
+                pendingTitle = '';
             };
 
             const saveEventsToStorage = () => {
@@ -161,7 +166,9 @@
                 muteBtn.textContent = isMuted ? 'Ton an' : 'Ton aus';
                 targetDateDisplay.textContent = `Zielzeit: ${targetDate ? new Date(targetDate).toLocaleString() : (selectedDateTime && mode === 'targetDate' ? new Date(selectedDateTime).toLocaleString() : '-')}`;
                 
-                const state = { mode, selectedDateTime, days, hours, minutes, seconds, isMuted, isCountingDown, targetDate };
+                mainTitle.textContent = currentTitle ? `Countdown ${currentTitle}` : 'Countdown';
+
+                const state = { mode, selectedDateTime, days, hours, minutes, seconds, isMuted, isCountingDown, targetDate, currentTitle, pendingTitle, hasManualChanges };
                 localStorage.setItem('countdownAppState', JSON.stringify(state));
             };
 
@@ -216,13 +223,24 @@
                         </div>
                     </div>`;
 
-                document.getElementById('datetime-input').addEventListener('input', (e) => { selectedDateTime = e.target.value; updateButtonsAndDisplay(); });
-                document.getElementById('target-date-preset-select').addEventListener('change', (e) => handleTargetDatePreset(e.target.value));
-                document.getElementById('countdown-preset-select').addEventListener('change', (e) => handleCountdownPreset(e.target.value));
+                document.getElementById('datetime-input').addEventListener('input', (e) => { 
+                    selectedDateTime = e.target.value; 
+                    hasManualChanges = true;
+                    updateButtonsAndDisplay(); 
+                });
+                document.getElementById('target-date-preset-select').addEventListener('change', (e) => { 
+                    handleTargetDatePreset(e.target.value); 
+                    hasManualChanges = true;
+                });
+                document.getElementById('countdown-preset-select').addEventListener('change', (e) => { 
+                    handleCountdownPreset(e.target.value); 
+                    hasManualChanges = true;
+                });
                 ['days', 'hours', 'minutes', 'seconds'].forEach(k => {
                     document.getElementById(`input-${k}`).addEventListener('input', (e) => {
                         const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value));
                         if(k === 'days') days = val; if(k === 'hours') hours = val; if(k === 'minutes') minutes = val; if(k === 'seconds') seconds = val;
+                        hasManualChanges = true;
                         updateButtonsAndDisplay();
                     });
                 });
@@ -262,6 +280,9 @@
                         targetDate = new Date(Date.now() + ms).toISOString();
                     } else {
                         targetDate = new Date(selectedDateTime).toISOString();
+                    }
+                    if (pendingTitle) {
+                        currentTitle = pendingTitle;
                     }
                 }
                 isCountingDown = true;
@@ -338,7 +359,19 @@
             modeTargetDateBtn.addEventListener('click', () => { mode = 'targetDate'; updateUI(); });
             modeCountdownBtn.addEventListener('click', () => { mode = 'countdown'; updateUI(); });
             startBtn.addEventListener('click', () => startCountdown());
-            resetBtn.addEventListener('click', () => { clearInterval(countdownInterval); isCountingDown = false; targetDate = ''; updateUI(); });
+            
+            resetBtn.addEventListener('click', () => { 
+                clearInterval(countdownInterval); 
+                isCountingDown = false; 
+                targetDate = ''; 
+                
+                if (hasManualChanges) {
+                    clearTitles(); 
+                    hasManualChanges = false;
+                }
+                updateUI(); 
+            });
+
             muteBtn.addEventListener('click', () => { isMuted = !isMuted; updateUI(); });
             
             saveBtn.addEventListener('click', () => {
@@ -400,8 +433,17 @@
                 const idx = parseInt(btn.dataset.index);
                 const ev = savedEvents[idx];
                 if (btn.classList.contains('load-btn')) {
+                    // AKTION 1: Erst Text löschen
+                    clearTitles();
+                    
+                    // Dann Daten laden
                     mode = ev.mode; selectedDateTime = ev.selectedDateTime;
                     days = ev.days; hours = ev.hours; minutes = ev.minutes; seconds = ev.seconds;
+                    
+                    // Titel in Wartestellung bringen
+                    pendingTitle = ev.name; 
+                    hasManualChanges = false; 
+                    
                     if(mode === 'targetDate') document.getElementById('datetime-input').value = selectedDateTime;
                     else {
                         document.getElementById('input-days').value = formatInputVal(days);
@@ -439,6 +481,9 @@
                 const s = JSON.parse(appState);
                 mode = s.mode; selectedDateTime = s.selectedDateTime || setNowAsDateTime();
                 isMuted = s.isMuted; days = s.days; hours = s.hours; minutes = s.minutes; seconds = s.seconds;
+                currentTitle = s.currentTitle || '';
+                pendingTitle = s.pendingTitle || '';
+                hasManualChanges = s.hasManualChanges || false;
                 if(s.isCountingDown && s.targetDate && new Date(s.targetDate) > new Date()) {
                     targetDate = s.targetDate; startCountdown(true);
                 }
