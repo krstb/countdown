@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gymtracker';
+const CACHE_NAME = 'countdown';
 const ASSETS = [
   'index.html',
   'manifest.json'
