@@ -1,4 +1,4 @@
-const CACHE_NAME = 'uhrzeit-v5';
+const CACHE_NAME = 'countdown-v5';
 const ASSETS = [
   'index.html',
   'manifest.json',
