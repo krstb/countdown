@@ -505,23 +505,62 @@
                 }
             });
 
+            // --- HIER BEGINNT DER KORRIGIERTE INITIALISIERUNGS-BEREICH ---
+            
+            // 1. Initialisierung
+            createInputs();
             const stored = localStorage.getItem('savedCountdownEvents');
             if (stored) savedEvents = JSON.parse(stored);
-            createInputs();
+
+            // 2. Den "Wachmacher" für den Hintergrund-Modus registrieren
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && isCountingDown && targetDate) {
+                    const diff = new Date(targetDate).getTime() - Date.now();
+                    if (diff <= 0) {
+                        clearInterval(countdownInterval);
+                        isCountingDown = false;
+                        targetDate = '';
+                        [daysEl, hoursEl, minutesEl, secondsEl, millisecondsEl].forEach(el => el.textContent = '00');
+                        if(!isMuted) playTone();
+                        updateUI();
+                    }
+                }
+            });
+
+            // 3. Status beim Starten/Neustarten aus dem Speicher laden
             const appState = localStorage.getItem('countdownAppState');
             if (appState) {
                 const s = JSON.parse(appState);
-                mode = s.mode; selectedDateTime = s.selectedDateTime || setNowAsDateTime();
-                isMuted = s.isMuted; days = s.days; hours = s.hours; minutes = s.minutes; seconds = s.seconds;
+                mode = s.mode; 
+                selectedDateTime = s.selectedDateTime || setNowAsDateTime();
+                isMuted = s.isMuted; 
+                days = s.days; hours = s.hours; minutes = s.minutes; seconds = s.seconds;
                 currentTitle = s.currentTitle || '';
                 pendingTitle = s.pendingTitle || '';
                 hasManualChanges = s.hasManualChanges || false;
-                if(s.isCountingDown && s.targetDate && new Date(s.targetDate) > new Date()) {
-                    targetDate = s.targetDate; startCountdown(true);
+
+                if(s.isCountingDown && s.targetDate) {
+                    const now = Date.now();
+                    const tDate = new Date(s.targetDate).getTime();
+                    
+                    if (tDate > now) {
+                        targetDate = s.targetDate;
+                        startCountdown(true); // Läuft noch -> Timer wieder aufnehmen
+                    } else {
+                        // In der Zwischenzeit abgelaufen
+                        isCountingDown = false;
+                        targetDate = '';
+                        [daysEl, hoursEl, minutesEl, secondsEl, millisecondsEl].forEach(el => el.textContent = '00');
+                    }
                 }
-            } else { selectedDateTime = setNowAsDateTime(); }
+            } else { 
+                selectedDateTime = setNowAsDateTime(); 
+            }
             
-            if(document.getElementById('datetime-input')) document.getElementById('datetime-input').value = selectedDateTime;
+            // 4. Eingabefelder mit den geladenen Werten füllen
+            if(document.getElementById('datetime-input')) {
+                document.getElementById('datetime-input').value = selectedDateTime;
+            }
             ['days', 'hours', 'minutes', 'seconds'].forEach(k => {
                 const el = document.getElementById(`input-${k}`);
                 if(el) {
@@ -529,6 +568,8 @@
                     el.value = formatInputVal(val);
                 }
             });
+
+            // 5. Initiale Anzeige aktualisieren
             updateUI();
         });
     </script>
