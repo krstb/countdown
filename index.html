@@ -218,10 +218,11 @@
                                 <option value="" disabled selected hidden>Voreinstellung wählen</option>
                                 <option value="fussball-abfahrt">Fussball Abfahrt</option>
                                 <option value="now">Aktuelle Zeit</option>
-                                <option value="next-9am">Nächster 9.00 Uhr</option>
-                                <option value="tomorrow-9am">Morgen um 9.00 Uhr</option>
-                                <option value="jan-1-next-year">Nächster 01.01.</option>
-                                <option value="next-march-27">Nächster 27.03.</option>
+                                <option value="next-8am">Nächster 8.00 Uhr</option>
+                                <option value="tomorrow-8am">Morgen um 8.00 Uhr</option>
+                                <option value="jan-1-next-year">Nächstes Sylvester</option>
+                                <option value="next-march-27">Nächster Geburtstag Robert</option>
+								<option value="next-christmas">Nächstes Weihnachten 18:00 Uhr</option>
                             </select>
                         </div>
                         <div>
@@ -243,7 +244,7 @@
                                 ${['days:Tage', 'hours:Std', 'minutes:Min', 'seconds:Sek'].map(f => {
                                     const [k, l] = f.split(':');
                                     return `<div class="flex flex-col items-center">
-                                        <input type="number" id="input-${k}" class="w-10 text-center px-1 py-2 bg-gray-100 rounded-xl border text-sm" min="0">
+                                        <input type="number" id="input-${k}" class="w-16 text-center px-1 py-2 bg-gray-100 rounded-xl border text-sm" min="0">
                                         <span class="mt-1 text-xs text-slate-500">${l}</span>
                                     </div>`
                                 }).join('')}
@@ -285,9 +286,10 @@
                 let d = new Date();
                 if (val === 'now') d = new Date();
                 else if (val === 'fussball-abfahrt') d.setHours(14,0,0,0);
-                else if (val === 'next-9am') { d.setHours(9,0,0,0); if(d < new Date()) d.setDate(d.getDate()+1); }
-                else if (val === 'tomorrow-9am') { d.setDate(d.getDate()+1); d.setHours(9,0,0,0); }
+                else if (val === 'next-8am') { d.setHours(8,0,0,0); if(d < new Date()) d.setDate(d.getDate()+1); }
+                else if (val === 'tomorrow-8am') { d.setDate(d.getDate()+1); d.setHours(8,0,0,0); }
                 else if (val === 'jan-1-next-year') { d.setFullYear(d.getFullYear()+(d.getMonth()===0&&d.getDate()===1?0:1),0,1); d.setHours(0,0,0,0); }
+				else if (val === 'next-christmas') { d.setFullYear(d.getFullYear()+(d.getMonth()>11||(d.getMonth()===11&&d.getDate()>=24)?1:0),11,24); d.setHours(18,0,0,0); }
                 else if (val === 'next-march-27') { d.setFullYear(d.getFullYear()+(d.getMonth()>2||(d.getMonth()===2&&d.getDate()>=27)?1:0),2,27); d.setHours(0,0,0,0); }
                 selectedDateTime = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
                 document.getElementById('datetime-input').value = selectedDateTime;
