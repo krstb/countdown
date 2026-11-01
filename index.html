@@ -143,6 +143,19 @@
             const padMilliseconds = (num) => String(Math.floor(num / 10)).padStart(2, '0');
             const formatInputVal = (val) => (val === 0 || val === null) ? '' : val;
 
+            // Feste Formatierung im Format tt.mm.jjjj, hh:mm
+            const formatGermanDateTime = (dateStr) => {
+                if (!dateStr) return '-';
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return '-';
+                const dd = String(d.getDate()).padStart(2, '0');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yyyy = d.getFullYear();
+                const hh = String(d.getHours()).padStart(2, '0');
+                const min = String(d.getMinutes()).padStart(2, '0');
+                return `${dd}.${mm}.${yyyy}, ${hh}:${min}`;
+            };
+
             const setNowAsDateTime = () => {
                 const now = new Date();
                 return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -192,7 +205,9 @@
                 saveBtn.classList.toggle('hidden', isCountingDown || !isStartable);
                 muteBtn.className = `px-3 py-1 rounded-full font-bold transition-all duration-300 transform text-sm ${isMuted ? 'bg-amber-500 text-white shadow-md hover:bg-amber-400' : 'bg-yellow-400 text-white shadow-md hover:bg-yellow-300'}`;
                 muteBtn.textContent = isMuted ? 'Ton an' : 'Ton aus';
-                targetDateDisplay.textContent = `Zielzeit: ${targetDate ? new Date(targetDate).toLocaleString() : (selectedDateTime && mode === 'targetDate' ? new Date(selectedDateTime).toLocaleString() : '-')}`;
+                
+                // Hier wurde die Zielzeit-Anzeige auf das feste deutsche Format umgestellt:
+                targetDateDisplay.textContent = `Zielzeit: ${targetDate ? formatGermanDateTime(targetDate) : (selectedDateTime && mode === 'targetDate' ? formatGermanDateTime(selectedDateTime) : '-')}`;
                 
                 mainTitle.textContent = currentTitle ? `Countdown ${currentTitle}` : 'Countdown';
 
@@ -255,7 +270,7 @@
                 document.getElementById('datetime-input').addEventListener('input', (e) => { 
                     selectedDateTime = e.target.value; 
                     hasManualChanges = true;
-                    pendingTitle = ''; // Bei manueller Änderung wird der pendingTitle gelöscht
+                    pendingTitle = ''; 
                     updateButtonsAndDisplay(); 
                 });
                 document.getElementById('target-date-preset-select').addEventListener('change', (e) => { 
@@ -275,7 +290,7 @@
                             const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value));
                             if(k === 'days') days = val; if(k === 'hours') hours = val; if(k === 'minutes') minutes = val; if(k === 'seconds') seconds = val;
                             hasManualChanges = true;
-                            pendingTitle = ''; // Bei manueller Änderung wird der pendingTitle gelöscht
+                            pendingTitle = ''; 
                             updateButtonsAndDisplay();
                         });
                     }
@@ -326,9 +341,6 @@
                         targetDate = new Date(selectedDateTime).toISOString();
                     }
                     
-                    // Titel-Logik: Nur beim Starten wird der Titel gesetzt.
-                    // Wenn keine manuellen Änderungen vorlagen und ein pendingTitle existiert, wird dieser übernommen.
-                    // Ansonsten (bei manuellen Änderungen oder leerem Speicher) wird blanko geschrieben.
                     if (!hasManualChanges && pendingTitle) {
                         currentTitle = pendingTitle;
                     } else {
@@ -414,8 +426,6 @@
                 clearInterval(countdownInterval); 
                 isCountingDown = false; 
                 targetDate = ''; 
-                // Reset Taste ändert die Überschrift nicht (currentTitle bleibt), 
-                // aber bereitet das System auf neue Eingaben vor.
                 updateUI(); 
             });
 
@@ -480,7 +490,6 @@
                 const idx = parseInt(btn.dataset.index);
                 const ev = savedEvents[idx];
                 if (btn.classList.contains('load-btn')) {
-                    // Laden ändert die Überschrift nicht! Nur den Zwischenspeicher (pendingTitle)
                     mode = ev.mode; 
                     selectedDateTime = ev.selectedDateTime;
                     days = ev.days; hours = ev.hours; minutes = ev.minutes; seconds = ev.seconds;
@@ -516,8 +525,6 @@
                 }
             });
 
-            // --- HIER BEGINNT DER KORRIGIERTE INITIALISIERUNGS-BEREICH ---
-            
             // 1. Initialisierung
             createInputs();
             const stored = localStorage.getItem('savedCountdownEvents');
@@ -556,9 +563,8 @@
                     
                     if (tDate > now) {
                         targetDate = s.targetDate;
-                        startCountdown(true); // Läuft noch -> Timer wieder aufnehmen
+                        startCountdown(true); 
                     } else {
-                        // In der Zwischenzeit abgelaufen
                         isCountingDown = false;
                         targetDate = '';
                         [daysEl, hoursEl, minutesEl, secondsEl, millisecondsEl].forEach(el => el.textContent = '00');
@@ -568,7 +574,6 @@
                 selectedDateTime = setNowAsDateTime(); 
             }
             
-            // 4. Eingabefelder mit den geladenen Werten füllen
             if(document.getElementById('datetime-input')) {
                 document.getElementById('datetime-input').value = selectedDateTime;
             }
@@ -580,7 +585,6 @@
                 }
             });
 
-            // 5. Initiale Anzeige aktualisieren
             updateUI();
         });
     </script>
