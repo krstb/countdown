@@ -43,10 +43,12 @@
             Countdown
         </h1>
 
-        <div class="flex justify-center space-x-2 mb-4">
-            <button id="mode-target-date" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300">Zielzeit</button>
-            <button id="mode-countdown" class="px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300">Countdown</button>
-        </div>
+        <!-- Nachher (mit fester Höhe / flexibler Ausrichtung) -->
+<div class="flex justify-center items-center space-x-2 mb-4">
+    <button id="mode-target-date" class="h-8 px-4 rounded-full text-xs font-semibold transition-all duration-300 flex items-center justify-center">Zielzeit</button>
+    <button id="mode-countdown" class="h-8 px-4 rounded-full text-xs font-semibold transition-all duration-300 flex items-center justify-center">Countdown</button>
+</div>
+
 
         <div id="input-container" class="min-h-[150px]"></div>
 
@@ -93,7 +95,7 @@
                     <input type="file" id="csv-file-input" class="hidden" accept=".csv">
                 </div>
             </div>
-            <div id="saved-events-list" class="space-y-2 max-h-32 overflow-y-auto pr-1">
+            <div id="saved-events-list" class="space-y-1 max-h-32 overflow-y-auto pr-1">
                 <p class="text-sm text-gray-500">nichts gespeichert</p>
             </div>
         </div>
@@ -222,14 +224,16 @@
                 localStorage.setItem('countdownAppState', JSON.stringify(state));
             };
 
-            const updateUI = () => {
-                modeTargetDateBtn.className = `px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${mode === 'targetDate' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
-                modeCountdownBtn.className = `px-3 py-1 rounded-full text-xs font-semibold transition-all duration-300 ${mode === 'countdown' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                            const updateUI = () => {
+                modeTargetDateBtn.className = `px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 flex items-center justify-center ${mode === 'targetDate' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                modeCountdownBtn.className = `px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 flex items-center justify-center ${mode === 'countdown' ? 'bg-cyan-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
                 document.getElementById('target-date-wrapper').classList.toggle('hidden', mode !== 'targetDate');
                 document.getElementById('countdown-wrapper').classList.toggle('hidden', mode !== 'countdown');
                 updateButtonsAndDisplay();
                 renderSavedEvents();
             };
+
+
 
             const createInputs = () => {
                 inputContainer.innerHTML = `
@@ -266,7 +270,7 @@
                                 ${['days:Tage', 'hours:Std', 'minutes:Min', 'seconds:Sek'].map(f => {
                                     const [k, l] = f.split(':');
                                     return `<div class="flex flex-col items-center">
-                                        <input type="number" id="input-${k}" class="w-16 text-center px-1 py-2 bg-gray-100 rounded-xl border text-sm" min="0">
+                                        <input type="number" id="input-${k}" class="w-16 text-center px-1 py-1 bg-gray-100 rounded-xl border text-sm" min="0">
                                         <span class="mt-1 text-xs text-slate-500">${l}</span>
                                     </div>`
                                 }).join('')}
