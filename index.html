@@ -216,7 +216,6 @@
         </div>
 
         <div class="mt-4 p-4 bg-white rounded-2xl shadow-lg border border-gray-200">
-            <!-- Zentrierte Buttons -->
             <div class="flex items-center justify-center gap-2 mb-2">
                 <button id="import-csv-btn" class="btn btn-primary btn-small flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -480,6 +479,15 @@
                     if (diff <= 0) {
                         clearInterval(countdownInterval);
                         isCountingDown = false;
+                        targetDate = ''; // Verhindert, dass alte Zeitstempel weiterverwendet werden
+                        
+                        // Ziffernfelder sofort auf 00 setzen
+                        daysEl.textContent = '00';
+                        hoursEl.textContent = '00';
+                        minutesEl.textContent = '00';
+                        secondsEl.textContent = '00';
+                        millisecondsEl.textContent = '00';
+
                         if (!isMuted) playTone();
                         updateUI();
                         return;
@@ -569,6 +577,7 @@
                 clearInterval(countdownInterval);
                 isCountingDown = false;
                 targetDate = '';
+                [daysEl, hoursEl, minutesEl, secondsEl, millisecondsEl].forEach(el => el.textContent = '00');
                 updateUI();
             });
 
